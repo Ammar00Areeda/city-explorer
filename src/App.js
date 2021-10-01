@@ -1,162 +1,88 @@
-/* eslint-disable react/jsx-no-comment-textnodes */
-import React from 'react'
+import React from 'react';
 import axios from 'axios';
-
-// https://city-explore-backend.herokuapp.com
-
-
-
+import FormCom from './components/FormCom';
+import CardCom from './components/CardCom';
+import TableCom from './components/TableCom';
+import AlertCom from './components/AlertCom';
+import Weather from './components/Weather';
+import Movies from './components/Movies';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 
 class App extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      weatherDataInfo: {},
-      setWeatherInfo: false,
-
-
-
+      movieResult: {},
+      code: '',
+      locationResult: {},
+      searchQuery: '',
+      showLocInfo: false,
+      showError: false
     }
   }
 
-  getLocFun = async (e) => {
-    e.preventDefault();
-    console.log(e.target.city.value);
-    console.log('inside getLocFun')
+  getLocInformation = async (event) => {
+    event.preventDefault();
     await this.setState({
-      searchQuery: e.target.city.value
+      searchQuery: event.target.city.value
     })
-    let reqUrl = `https://us1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_LOCATIONIQ_KEY}&q=${this.state.searchQuery}&format=json`;
-
-    let locResult = await axios.get(reqUrl);
-
-
-    this.setState({
-      locationResult: locResult.data[0],
-      showLocInfo: true
-    })
+    let weatherUrl = `${process.env.REACT_APP_SERVER_LINK}/weather?city=${this.state.searchQuery}`
+    let movieURL = `${process.env.REACT_APP_SERVER_LINK}/movies?query=${this.state.searchQuery}`
+    try {
+      let weatherResult = await axios.get(weatherUrl);
+      let matchedMoviesResult = await axios.get(movieURL);
+      this.setState({
+        locationResult: weatherResult.data,
+        movieResult: matchedMoviesResult.data,
+        showLocInfo: true,
+        showError: false
+      })
+      console.log(this.state.locationResult);
+      console.log(this.state.movieResult);
+    } catch {
+      fetch(weatherUrl)
+        .then(response => {
+          this.setState({
+            code: response.status,
+            showError: true,
+            showLocInfo: false
+          })
+        })
+    }
   }
 
-  getWeatherInfo = async () => {
-    console.log(this.state.searchQuery);
-    let url = `${process.env.REACT_APP_SERVER_LINK}/getWeater?searchQuery=${this.state.searchQuery}`;
-    let weatherData = await axios.get(url);
-    this.setState({
-      weatherDataInfo: weatherData.data,
-      setWeatherInfo: true,
-    })
-    console.log(this.state.weatherDataInfo);
-    console.log(weatherData);
-  }
-
+  checkTimeStamp = () => {
+    console.log(this.state.locationResult.timeStamp);
+    if (this.state.locationResult.timeStamp)
+    {
+      return(<p className="timeStamp">Data Retrieved at: {this.state.locationResult.timeStamp}</p>)
+    } else {
+      return(<p className="timeStamp">New Data</p>);
+    } 
+  };
 
   render() {
     return (
       <div>
-        <h3>City Explorer app</h3>
-        {/* <button onClick={this.getLocFun}>Get Location</button> */}
-        <form onSubmit={this.getLocFun} >
-          <input type="text" name='city' />
-          <input type="submit" value='get city info' />
-        </form>
 
-        {this.state.showLocInfo &&
-          <>
-            <p>City name: {this.state.searchQuery}</p>
-            <p>latitude: {this.state.locationResult.lat}</p>
-            <p>longitude: {this.state.locationResult.lon} </p>
+        <div className="left-box">
+          <FormCom locationInfo={this.getLocInformation} />
 
-            <img src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_LOCATIONIQ_KEY}&center=${this.state.locationResult.lat},${this.state.locationResult.lon}&zoom=10`} alt="city" />
+          {this.state.showLocInfo && this.checkTimeStamp()}
 
-          </>
+          {this.state.showLocInfo && <TableCom col1={['City Name', 'Latitude:', 'Longitude:']} col2={[this.state.searchQuery, this.state.locationResult.lat, this.state.locationResult.lon]} />}
+          {this.state.showLocInfo && <Weather forcast={this.state.locationResult} />}
 
-        }
-        <button onClick={this.getWeatherInfo}>get weather</button>
+          {this.state.showError && <AlertCom showError={this.state.showError} message={this.state.code} />}
 
-        {this.state.setWeatherInfo &&
-         
+        </div>
+
         
-        <>
-            
-              {this.state.weatherDataInfo.map((iteam,index)=>{
-                return(<div key={index}>
-                  <p>{iteam.data}</p>
-                  <p>{iteam.description}</p>
-                </div>)
-                
-              }) }
-            </>
-        }
-            </div>
-            )
+      </div>
+    )
   }
-
-
 }
-            export default App;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       locationResult: {},
-//       searchQuery: '',
-//       showLocInfo: false
-//     }
-//   }
-
-
-
-
-
-
-//   render() {
-//     return (
-//      
-//     )
-//   }
-
-// }
-// export default App
-
-
+export default App;

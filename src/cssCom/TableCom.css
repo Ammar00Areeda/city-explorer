@@ -1,0 +1,9 @@
+.table{
+    width: 500px;
+    background-color: #A1A5A6;
+}
+.table td{
+    color: #353D40;
+    font-size: 16px;
+    font-weight: bold;
+}

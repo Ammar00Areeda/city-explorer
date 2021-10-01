@@ -1,0 +1,12 @@
+.infoForm{
+    width: 500px;
+    margin-bottom: 80px;
+}
+.label{
+    color: #F2B138;
+    font-size: 25px;
+    font-weight: bold;
+}
+.message{
+    color:#F2B138;
+}

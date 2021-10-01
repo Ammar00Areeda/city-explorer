@@ -1,0 +1,19 @@
+.movie-cards .card{
+    /* display: inline-block; */
+    float: left;
+    margin-top: 30px;
+    margin-right: 30px;
+    /* margin-bottom: 30px; */
+    /* height: 500px; */
+    min-height: 680px;
+    background-color: #D9D9D9;
+}
+.movie-cards img{
+    height: 300px;
+}
+
+.movie-cards .card .card-text{
+    max-height: 150px;
+    overflow: hidden;
+    color: #353D40;
+}
